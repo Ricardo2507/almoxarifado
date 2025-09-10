@@ -1,0 +1,18 @@
+<div class="card mb-3 p-3" hx-target="this" hx-swap="outerHTML">
+  <div class="row g-2 align-items-end">
+    <div class="col-md-6">
+      {{ form.material.label_tag }}
+      {{ form.material|add_class:"form-select" }}
+    </div>
+    <div class="col-md-3">
+      {{ form.quantidade.label_tag }}
+      {{ form.quantidade|add_class:"form-control" }}
+    </div>
+    <div class="col-md-3 text-end">
+      <button type="button" class="btn btn-danger btn-sm"
+              hx-click="this.closest('.card').remove()">
+        Remover
+      </button>
+    </div>
+  </div>
+</div>

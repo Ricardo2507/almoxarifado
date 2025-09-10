@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Notas Fiscais{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Notas Fiscais</h1>
+
+    <a href="{% url 'notas:nova' %}" class="btn btn-primary mb-3">Nova Nota Fiscal</a>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Número</th>
+                    <th>Data</th>
+                    <th>Itens</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for nota in notas %}
+                <tr>
+                    <td>{{ nota.numero }}</td>
+                    <td>{{ nota.data|date:"d/m/Y" }}</td>
+                    <td>{{ nota.itens.count }}</td>
+                    <td>
+                        <a href="{% url 'notas:detalhe' nota.pk %}" class="btn btn-sm btn-info">Detalhe</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">Nenhuma nota registrada.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

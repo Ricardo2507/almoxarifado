@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ material.nome }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- Card do Material -->
+    <div class="card mb-4 shadow-sm">
+        <div class="row g-0">
+            {% if material.imagem %}
+            <div class="col-md-4 text-center p-3">
+                <img src="{{ material.imagem.url }}" class="img-fluid rounded" alt="{{ material.nome }}">
+            </div>
+            {% endif %}
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h1 class="card-title">{{ material.nome }}</h1>
+                    <p class="card-text">{{ material.descricao }}</p>
+                    <p class="card-text"><strong>Estoque:</strong> {{ material.quantidade_estoque }} {{ material.unidade_medida }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botão de volta -->
+    <a href="{% url 'materiais:lista' %}" class="btn btn-secondary">Voltar para a Lista</a>
+
+</div>
+{% endblock %}

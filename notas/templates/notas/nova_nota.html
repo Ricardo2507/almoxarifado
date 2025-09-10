@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Nova Nota Fiscal{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4 text-center">Nova Nota Fiscal</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.management_form }}
+        {{ formset.management_form }}
+
+        <!-- Campos da Nota -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                {% for field in form %}
+                    <div class="mb-3">
+                        <label class="form-label">{{ field.label }}</label>
+                        {{ field|add_class:"form-control" }}
+                        {% if field.errors %}
+                            <div class="text-danger small">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Tabela de Itens -->
+        <h3 class="mb-3">Itens da Nota</h3>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped" id="tabela-itens">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Material</th>
+                        <th>Quantidade</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for form_item in formset %}
+                    <tr>
+                        <td>{{ form_item.material|add_class:"form-select" }}</td>
+                        <td>{{ form_item.quantidade|add_class:"form-control" }}</td>
+                        <td>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="removerLinha(this)">Remover</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mb-3 mt-2">
+            <button type="button" class="btn btn-secondary" onclick="adicionarLinha()">Adicionar Item</button>
+            <button type="submit" class="btn btn-primary">Salvar Nota Fiscal</button>
+        </div>
+    </form>
+</div>
+
+<script>
+function atualizarTotalForms() {
+    const totalForms = document.querySelector('#id_itemnotafiscal_set-TOTAL_FORMS');
+    const linhas = document.querySelectorAll('#tabela-itens tbody tr');
+    totalForms.value = linhas.length;
+
+    linhas.forEach((linha, index) => {
+        linha.querySelectorAll('select, input').forEach(el => {
+            if(el.name) el.name = el.name.replace(/-\d+-/, `-${index}-`);
+            if(el.id) el.id = el.id.replace(/-\d+-/, `-${index}-`);
+        });
+    });
+}
+
+function adicionarLinha() {
+    const tbody = document.querySelector('#tabela-itens tbody');
+    const primeiraLinha = tbody.querySelector('tr');
+    const novaLinha = primeiraLinha.cloneNode(true);
+
+    // Limpa valores da nova linha
+    novaLinha.querySelectorAll('input').forEach(el => el.value = 1);
+    novaLinha.querySelectorAll('select').forEach(el => el.selectedIndex = 0);
+
+    tbody.appendChild(novaLinha);
+    atualizarTotalForms();
+}
+
+function removerLinha(btn) {
+    btn.closest('tr').remove();
+    atualizarTotalForms();
+}
+</script>
+{% endblock %}

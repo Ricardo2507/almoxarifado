@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% block title %}Nova Requisição{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Nova Requisição</h1>
+
+    <form method="post" id="form-requisicao">
+        {% csrf_token %}
+        {{ form.management_form }}
+        {{ formset.management_form }}
+
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                {% for field in form %}
+                    <div class="mb-3">
+                        <label class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="text-danger small">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <h3>Itens da Requisição</h3>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped" id="tabela-itens">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Material</th>
+                        <th>Quantidade</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for form_item in formset.forms %}
+                    <tr>
+                        <td>{{ form_item.material }}</td>
+                        <td>{{ form_item.quantidade }}</td>
+                        <td>
+                            <!-- sempre inclua campos ocultos; DELETE pode existir mesmo para novos forms -->
+                            {{ form_item.id }}
+                            {{ form_item.DELETE }}
+                            <button type="button" class="btn btn-danger btn-sm" onclick="removerLinha(this)">Remover</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-3">
+            <button type="button" class="btn btn-secondary" id="btn-adicionar" onclick="adicionarLinha()">Adicionar Item</button>
+            <button type="submit" class="btn btn-primary">Salvar e ir para Lista</button>
+        </div>
+    </form>
+</div>
+
+<!-- Linha modelo oculta: usa empty_form (vem com __prefix__ no name/id) -->
+<table style="display:none;">
+    <tbody>
+        <tr id="linha-modelo">
+            <td>{{ formset.empty_form.material }}</td>
+            <td>{{ formset.empty_form.quantidade }}</td>
+            <td>
+                {{ formset.empty_form.DELETE }} <!-- o empty_form já inclui esse campo -->
+                <button type="button" class="btn btn-danger btn-sm" onclick="removerLinha(this)">Remover</button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<script>
+/* Função utilitária para encontrar o input TOTAL_FORMS (mais robusto que usar um id fixo) */
+function getManagementInputs() {
+    const total = document.querySelector('input[name$="-TOTAL_FORMS"]');
+    const prefix = total ? total.name.replace('-TOTAL_FORMS','') : null;
+    return { totalInput: total, prefix };
+}
+
+/* Reindexa todos os forms visíveis no tbody para manter nomes/ids corretos */
+function reindexForms() {
+    const tbody = document.querySelector('#tabela-itens tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr')).filter(r => r.style.display !== 'none');
+    const { totalInput, prefix } = getManagementInputs();
+    rows.forEach((row, index) => {
+        row.querySelectorAll('input, select, textarea').forEach(el => {
+            if (!el.name) return;
+            // substitui qualquer -N- pelo índice atual
+            el.name = el.name.replace(new RegExp(`^${prefix}-\\d+-`), `${prefix}-${index}-`);
+            // idem para id
+            if (el.id) el.id = el.id.replace(new RegExp(`^id_${prefix}-\\d+-`), `id_${prefix}-${index}-`);
+        });
+    });
+    if (totalInput) totalInput.value = rows.length;
+}
+
+/* Adiciona nova linha clona a linha modelo (empty_form) e substitui __prefix__ */
+function adicionarLinha() {
+    const tbody = document.querySelector('#tabela-itens tbody');
+    const modelo = document.querySelector('#linha-modelo');
+    if (!modelo) {
+        console.error('Linha modelo não encontrada (formset.empty_form não renderizado).');
+        return;
+    }
+
+    const { totalInput, prefix } = getManagementInputs();
+    if (!totalInput) {
+        console.error('Campo TOTAL_FORMS não encontrado.');
+        return;
+    }
+
+    const index = parseInt(totalInput.value, 10);
+    // clona e substitui __prefix__
+    const nova = modelo.cloneNode(true);
+    nova.removeAttribute('id');
+    nova.style.display = '';
+
+    // substitui __prefix__ nos names e ids do HTML interno
+    nova.innerHTML = nova.innerHTML.replace(/__prefix__/g, index);
+
+    tbody.appendChild(nova);
+    reindexForms(); // reindexa para garantir consistência
+}
+
+/* Remover linha:
+   - se existe input DELETE -> marca checked e esconde a linha (para itens já salvos)
+   - se não existe (linha nova) -> remove do DOM e reindexa
+*/
+function removerLinha(btn) {
+    const row = btn.closest('tr');
+    if (!row) return;
+
+    const deleteInput = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
+    if (deleteInput) {
+        deleteInput.checked = true;
+        row.style.display = 'none';
+    } else {
+        row.remove();
+    }
+    reindexForms();
+}
+
+/* DEBUG: mostra no console os names existentes (útil para inspecionar) */
+function dumpNames() {
+    const rows = document.querySelectorAll('#tabela-itens tbody tr');
+    rows.forEach((r, i) => {
+        console.log('row', i, Array.from(r.querySelectorAll('input,select')).map(e => e.name));
+    });
+}
+</script>
+{% endblock %}

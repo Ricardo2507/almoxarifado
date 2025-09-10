@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Nova Nota Fiscal{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Nova Nota Fiscal</h1>
+
+    <form method="post" id="form-nota">
+        {% csrf_token %}
+
+        <!-- Campos da Nota Fiscal -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <div class="mb-3">
+                    {{ form.numero.label_tag }}
+                    {{ form.numero|add_class:"form-control" }}
+                </div>
+                <div class="mb-3">
+                    {{ form.data.label_tag }}
+                    {{ form.data|add_class:"form-control" }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Formset de Itens -->
+        <h3>Itens da Nota Fiscal</h3>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped" id="tabela-itens">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Material</th>
+                        <th>Quantidade</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ formset.management_form }}
+                    {% for form_item in formset.forms %}
+                    <tr>
+                        <td>{{ form_item.material|add_class:"form-select" }}</td>
+                        <td>{{ form_item.quantidade|add_class:"form-control" }}</td>
+                        <td>
+                            {{ form_item.id }}
+                            {{ form_item.DELETE }}
+                            <button type="button" class="btn btn-danger btn-sm" onclick="removerLinha(this)">Remover</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Botões -->
+        <div class="d-flex gap-2 mt-3">
+            <button type="button" class="btn btn-secondary" id="btn-adicionar" onclick="adicionarLinha()">Adicionar Item</button>
+            <button type="submit" class="btn btn-primary">Salvar Nota Fiscal</button>
+        </div>
+    </form>
+</div>
+
+<!-- Linha modelo oculta -->
+<table style="display:none;">
+    <tbody>
+        <tr id="linha-modelo">
+            <td>{{ formset.empty_form.material|add_class:"form-select" }}</td>
+            <td>{{ formset.empty_form.quantidade|add_class:"form-control" }}</td>
+            <td>
+                {{ formset.empty_form.DELETE }}
+                <button type="button" class="btn btn-danger btn-sm" onclick="removerLinha(this)">Remover</button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<script>
+// Função para pegar management_form do formset
+function getManagementInputs() {
+    const total = document.querySelector('input[name$="-TOTAL_FORMS"]');
+    const prefix = total ? total.name.replace('-TOTAL_FORMS','') : null;
+    return { totalInput: total, prefix };
+}
+
+// Reindexa todos os forms no tbody
+function reindexForms() {
+    const tbody = document.querySelector('#tabela-itens tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr')).filter(r => r.style.display !== 'none');
+    const { totalInput, prefix } = getManagementInputs();
+    rows.forEach((row, index) => {
+        row.querySelectorAll('input, select, textarea').forEach(el => {
+            if (!el.name) return;
+            el.name = el.name.replace(new RegExp(`^${prefix}-\\d+-`), `${prefix}-${index}-`);
+            if (el.id) el.id = el.id.replace(new RegExp(`^id_${prefix}-\\d+-`), `id_${prefix}-${index}-`);
+        });
+    });
+    if (totalInput) totalInput.value = rows.length;
+}
+
+// Adiciona nova linha usando empty_form
+function adicionarLinha() {
+    const tbody = document.querySelector('#tabela-itens tbody');
+    const modelo = document.querySelector('#linha-modelo');
+    if (!modelo) {
+        console.error('Linha modelo não encontrada.');
+        return;
+    }
+
+    const { totalInput, prefix } = getManagementInputs();
+    if (!totalInput) {
+        console.error('Campo TOTAL_FORMS não encontrado.');
+        return;
+    }
+
+    const index = parseInt(totalInput.value, 10);
+    const nova = modelo.cloneNode(true);
+    nova.removeAttribute('id');
+    nova.style.display = '';
+
+    nova.innerHTML = nova.innerHTML.replace(/__prefix__/g, index);
+    tbody.appendChild(nova);
+
+    reindexForms();
+}
+
+// Remove linha
+function removerLinha(btn) {
+    const row = btn.closest('tr');
+    if (!row) return;
+
+    const deleteInput = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
+    if (deleteInput) {
+        deleteInput.checked = true;
+        row.style.display = 'none';
+    } else {
+        row.remove();
+    }
+    reindexForms();
+}
+</script>
+{% endblock %}

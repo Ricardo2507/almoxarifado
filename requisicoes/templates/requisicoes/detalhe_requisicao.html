@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Requisição #{{ requisicao.id }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- Cabeçalho -->
+    <div class="text-center mb-4">
+        <h1 class="fw-bold">Requisição #{{ requisicao.id }}</h1>
+        <p class="text-muted">Detalhes completos da solicitação</p>
+    </div>
+
+    <!-- Informações da Requisição -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Requisitante</h6>
+                    <p class="mb-0 fs-5">{{ requisicao.requisitante.username }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Data de Criação</h6>
+                    <p class="mb-0 fs-5">{{ requisicao.data_requisicao|date:"d/m/Y H:i" }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Status</h6>
+                    {% if requisicao.status == 'pendente' %}
+                        <span class="badge bg-warning text-dark fs-6 px-3 py-2">{{ requisicao.status|capfirst }}</span>
+                    {% elif requisicao.status == 'atendida' %}
+                        <span class="badge bg-success fs-6 px-3 py-2">{{ requisicao.status|capfirst }}</span>
+                    {% else %}
+                        <span class="badge bg-secondary fs-6 px-3 py-2">{{ requisicao.status|capfirst }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Itens da Requisição -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Itens da Requisição</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Material</th>
+                            <th class="text-center">Quantidade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in requisicao.itens.all %}
+                            <tr>
+                                <td>
+                                    <strong>{{ item.material.nome }}</strong>
+                                    <span class="text-muted">({{ item.material.unidade_medida }})</span>
+                                </td>
+                                <td class="text-center">{{ item.quantidade }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="2" class="text-center text-muted py-3">
+                                    Nenhum item adicionado.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ações -->
+    <div class="mt-4 d-flex justify-content-between">
+        <a href="{% url 'requisicoes:listar' %}" class="btn btn-outline-secondary">
+            Voltar para Lista
+        </a>
+        {% if user.is_superuser and requisicao.status == 'pendente' %}
+            <a href="{% url 'requisicoes:atender' requisicao.id %}" class="btn btn-success">
+                Atender Requisição
+            </a>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

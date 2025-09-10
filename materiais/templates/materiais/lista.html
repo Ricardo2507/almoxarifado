@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="background-color: #dee2e6; min-height: 100vh; padding-top: 20px; padding-bottom: 20px;">
+    <div class="container py-4">
+        <h1 class="mb-4 text-center">Catálogo de Materiais</h1>
+
+        <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-3">
+            {% for m in materiais %}
+            <div class="col">
+                <div class="card h-100 text-center shadow-sm" style="background-color: #ffffff;">
+                    {% if m.imagem %}
+                    <div class="card-img-wrapper bg-light d-flex align-items-center justify-content-center" 
+                         style="height:120px; overflow:hidden;">
+                        <img src="{{ m.imagem.url }}" 
+                             alt="{{ m.nome }}"
+                             class="img-fluid"
+                             style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                    </div>
+                    {% else %}
+                    <div class="card-img-wrapper bg-light d-flex align-items-center justify-content-center" style="height:120px;">
+                        <span class="text-muted">Sem imagem</span>
+                    </div>
+                    {% endif %}
+                    <div class="card-body d-flex flex-column justify-content-between">
+                        <h6 class="card-title text-truncate" style="color:#212529;">{{ m.nome }}</h6>
+                        <p class="card-text small" style="color:#212529;">{{ m.quantidade_estoque }} {{ m.unidade_medida }}</p>
+                        <a href="{% url 'materiais:detalhe' m.pk %}" class="btn btn-primary btn-sm mt-auto">Detalhes</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col">
+                <div class="alert alert-warning text-center" role="alert">
+                    Sem materiais cadastrados.
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

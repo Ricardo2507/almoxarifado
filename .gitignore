@@ -1,0 +1,35 @@
+# Arquivos de ambiente
+**/.env
+
+# Banco de dados SQLite
+**/db.sqlite3
+
+# Arquivos compilados do Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# Pastas de cache e pacotes
+*.egg-info/
+.eggs/
+*.log
+
+# Ambiente virtual (caso esteja dentro do projeto)
+venv/
+env/
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos de editor
+*.idea/
+*.vscode/
+
+# Pasta estática coletada (geralmente usada em produção)
+staticfiles/
+
+# Logs e arquivos temporários
+*.swp
+*.swo
