@@ -26,8 +26,8 @@ urlpatterns = [
     path('requisicoes/', include('requisicoes.urls')),
     path('notas/', include('notas.urls')),
     path('accounts/', include('accounts.urls')),
-    
+
 ]
 
-#if settings.DEBUG:
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
