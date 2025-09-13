@@ -1,0 +1,23 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}Administração | {{ site_title }}{% endblock %}
+
+{% block extrastyle %}
+<!-- CSS do Django Admin via CDN -->
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/django@5.2.6/contrib/admin/static/admin/css/base.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/django@5.2.6/contrib/admin/static/admin/css/dashboard.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/django@5.2.6/contrib/admin/static/admin/css/responsive.css">
+{% endblock %}
+
+{% block extrahead %}
+<!-- JS do Django Admin via CDN -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/django@5.2.6/contrib/admin/static/admin/js/core.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/django@5.2.6/contrib/admin/static/admin/js/admin/RelatedObjectLookup.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/django@5.2.6/contrib/admin/static/admin/js/actions.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/django@5.2.6/contrib/admin/static/admin/js/calendar.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/django@5.2.6/contrib/admin/static/admin/js/admin/DateTimeShortcuts.js"></script>
+{% endblock %}
+
+
+

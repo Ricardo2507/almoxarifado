@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -23,10 +23,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-wx5n%dvs3&9@gq)o8d=j&i9umrfvykvvc$t13y913odn4x8rot'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+#ALLOWED_HOSTS = ['*']
 
+ALLOWED_HOSTS = [
+    'rscosolucoesti.com.br',
+    'www.rscosolucoesti.com.br', 
+    'almoxarifado.rscosolucoesti.com.br',
+    '31.97.250.129',  # IP do servidor
+    'localhost',
+    '127.0.0.1',
+]
 
 # Application definition
 
@@ -55,6 +63,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'almoxarifado.urls'
@@ -80,10 +89,21 @@ WSGI_APPLICATION = 'almoxarifado.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': BASE_DIR / 'db.sqlite3',
+#    }
+#
+#}
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'almoxarifado_db',
+        'USER': 'ricardo_db',
+        'PASSWORD': 'Necy050736@25',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -122,12 +142,17 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-#STATIC_URL = '/static/'
-STATIC_URL = 'https://cdn.jsdelivr.net/npm/django@5.2.6/contrib/admin/static/admin/'
+STATIC_URL = '/static/'
+STATIC_ROOT =  BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-STATIC_ROOT = BASE_DIR / 'static'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Configurações de upload
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000
 
 LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'notas:listar'  # página inicial após login
@@ -137,3 +162,4 @@ LOGOUT_REDIRECT_URL = 'accounts:login'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
